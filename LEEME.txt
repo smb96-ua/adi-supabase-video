@@ -1,0 +1,67 @@
+================================================================================
+                           ADIFlix - Práctica 4
+                        Aplicación Móvil con Ionic
+               Sergio Minguez Berja e Ivan Moises Martinez Zarate
+================================================================================
+
+DESCRIPCIÓN
+-----------
+App móvil híbrida con Ionic 8 + Vue 3 para gestionar películas y series.
+CRUD completo sobre ambos recursos con interfaz móvil nativa.
+
+TECNOLOGÍAS: Ionic 8, Vue 3, Capacitor 7, PocketBase, TypeScript
+
+ESTRUCTURA DEL PROYECTO
+-----------------------
+/
+├── backend/                       # PocketBase (ejecutable + datos)
+├── src/                           # Código fuente Vue/Ionic
+│   ├── backend/                   # Configuración y repositorios
+│   └── views/                     # Páginas (Login, Movies, Series, Tabs)
+├── public/                        # Assets PWA (manifest, service-worker)
+└── tests/                         # Tests E2E y unitarios
+
+================================================================================
+                         FUNCIONALIDADES IMPLEMENTADAS
+================================================================================
+
+✓ MÍNIMOS (7 puntos):
+  - Login con autenticación PocketBase
+  - CRUD completo de películas (IonList, slide actions, modales)
+  - Búsqueda y pull-to-refresh
+
+✓ OPCIONALES:
+  [+1 punto] CRUD de series con navegación por IonTabs
+  [+1 punto] Notificaciones en tiempo real (suscripción a cambios)
+  [+2 puntos] PWA Deployment (Vercel + Azure VM)
+
+TOTAL ESPERADO: 10 puntos (máximo)
+
+================================================================================
+                          INSTRUCCIONES DE EJECUCIÓN
+================================================================================
+
+1. Iniciar PocketBase:    cd backend && ./pocketbase serve
+2. Instalar dependencias: npm install
+3. Ejecutar app:          npm run dev
+4. Acceder:               http://localhost:5173
+
+CREDENCIALES
+------------
+Usuario app:     test@adiflix.com / test12345
+Admin PocketBase: admin@adiflix.com / admin12345
+
+================================================================================
+                               DESPLIEGUE
+================================================================================
+
+URLS EN PRODUCCIÓN:
+- Frontend: https://prac4-kv6sskef4-ivan-moises-martinez-zarates-projects.vercel.app
+- Backend:  http://20.251.197.14 (Azure VM)
+- Admin:    http://20.251.197.14/_/
+
+NOTAS:
+- Realtime deshabilitado en producción (limitación Cloudflare Tunnel)
+- En desarrollo local, el realtime funciona normalmente
+
+================================================================================
