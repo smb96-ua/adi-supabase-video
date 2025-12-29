@@ -19,8 +19,8 @@
     "@capacitor/status-bar": "7.0.3",
     "@ionic/vue": "^8.0.0",
     "@ionic/vue-router": "^8.0.0",
+    "@supabase/supabase-js": "^2.89.0",
     "ionicons": "^7.0.0",
-    "pocketbase": "^0.26.3",
     "vue": "^3.3.0",
     "vue-router": "^4.2.0"
   },
