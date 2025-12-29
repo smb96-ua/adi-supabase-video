@@ -45,10 +45,12 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
-  if (to.path !== '/login' && !isLoggedIn()) {
+router.beforeEach(async (to, from, next) => {
+  const loggedIn = await isLoggedIn()
+
+  if (to.path !== '/login' && !loggedIn) {
     next('/login')
-  } else if (to.path === '/login' && isLoggedIn()) {
+  } else if (to.path === '/login' && loggedIn) {
     next('/tabs/movies')
   } else {
     next()
@@ -56,3 +58,4 @@ router.beforeEach((to, from, next) => {
 })
 
 export default router
+

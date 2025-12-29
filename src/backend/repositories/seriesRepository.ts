@@ -1,6 +1,6 @@
-import { pb } from '../config/pb'
+import { supabase } from '../config/supabase'
 
-const COLLECTION = 'series'
+const TABLE = 'series'
 
 export interface Serie {
     id?: string
@@ -13,8 +13,8 @@ export interface Serie {
     poster?: string
     trailer?: string
     estado?: string
-    created?: string
-    updated?: string
+    created_at?: string
+    updated_at?: string
 }
 
 interface GetOptions {
@@ -23,59 +23,95 @@ interface GetOptions {
 }
 
 async function getSeries(options: GetOptions = {}): Promise<Serie[]> {
-    return await pb.collection(COLLECTION).getFullList({
-        sort: options.sort || '-created',
-        filter: options.filter || ''
-    })
+    let query = supabase.from(TABLE).select('*')
+
+    // Ordenación (por defecto: más recientes primero)
+    const sortField = options.sort?.replace('-', '') || 'created_at'
+    const ascending = options.sort ? !options.sort.startsWith('-') : false
+    query = query.order(sortField, { ascending })
+
+    const { data, error } = await query
+    if (error) throw error
+    return data || []
 }
 
 async function getSerie(id: string): Promise<Serie> {
-    return await pb.collection(COLLECTION).getOne(id)
+    const { data, error } = await supabase
+        .from(TABLE)
+        .select('*')
+        .eq('id', id)
+        .single()
+    if (error) throw error
+    return data
 }
 
 async function addSerie(serieData: Partial<Serie>): Promise<Serie> {
-    return await pb.collection(COLLECTION).create(serieData)
+    const { data, error } = await supabase
+        .from(TABLE)
+        .insert(serieData)
+        .select()
+        .single()
+    if (error) throw error
+    return data
 }
 
 async function updateSerie(id: string, serieData: Partial<Serie>): Promise<Serie> {
-    return await pb.collection(COLLECTION).update(id, serieData)
+    const { data, error } = await supabase
+        .from(TABLE)
+        .update(serieData)
+        .eq('id', id)
+        .select()
+        .single()
+    if (error) throw error
+    return data
 }
 
 async function deleteSerie(id: string): Promise<void> {
-    await pb.collection(COLLECTION).delete(id)
+    const { error } = await supabase
+        .from(TABLE)
+        .delete()
+        .eq('id', id)
+    if (error) throw error
 }
 
 async function searchSeries(query: string): Promise<Serie[]> {
     if (!query || query.trim() === '') {
         return await getSeries()
     }
-    return await pb.collection(COLLECTION).getFullList({
-        filter: `titulo ~ "${query}" || descripcion ~ "${query}" || genero ~ "${query}" || creador ~ "${query}"`,
-        sort: '-created'
-    })
+
+    // Búsqueda con ilike (case-insensitive) en múltiples campos
+    const { data, error } = await supabase
+        .from(TABLE)
+        .select('*')
+        .or(`titulo.ilike.%${query}%,descripcion.ilike.%${query}%,genero.ilike.%${query}%,creador.ilike.%${query}%`)
+        .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
 }
 
 function subscribeToSeries(callback: (data: any) => void): () => void {
-    // Deshabilitar realtime en producción (Cloudflare Tunnel no soporta WebSockets/SSE)
-    if (import.meta.env.MODE === 'production') {
-        console.log('🔕 Realtime deshabilitado en producción (usando Cloudflare Tunnel)')
-        return () => {} // No-op function
-    }
-    
-    try {
-        pb.collection(COLLECTION).subscribe('*', callback).catch((error) => {
-            console.error('❌ Error al subscribirse a realtime:', error)
-        })
-        return () => {
-            try {
-                pb.collection(COLLECTION).unsubscribe('*')
-            } catch (error) {
-                console.error('❌ Error al desubscribirse:', error)
+    const channel = supabase
+        .channel('series-changes')
+        .on(
+            'postgres_changes',
+            {
+                event: '*',
+                schema: 'public',
+                table: TABLE
+            },
+            (payload) => {
+                // Adaptar payload al formato esperado por la vista
+                callback({
+                    action: payload.eventType, // INSERT, UPDATE, DELETE
+                    record: payload.new || payload.old
+                })
             }
-        }
-    } catch (error) {
-        console.error('❌ Realtime no disponible:', error)
-        return () => {}
+        )
+        .subscribe()
+
+    return () => {
+        supabase.removeChannel(channel)
     }
 }
 

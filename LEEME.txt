@@ -1,67 +1,81 @@
 ================================================================================
-                           ADIFlix - Práctica 4
-                        Aplicación Móvil con Ionic
-               Sergio Minguez Berja e Ivan Moises Martinez Zarate
+                           ADIFlix - Práctica Video
+                        Migración Backend a Supabase
+       Daniel Segurado Climent, Iván Moisés Martínez Zárate, Sergio Mínguez Berja
 ================================================================================
 
 DESCRIPCIÓN
 -----------
 App móvil híbrida con Ionic 8 + Vue 3 para gestionar películas y series.
-CRUD completo sobre ambos recursos con interfaz móvil nativa.
+Backend migrado de PocketBase a Supabase.
 
-TECNOLOGÍAS: Ionic 8, Vue 3, Capacitor 7, PocketBase, TypeScript
+TECNOLOGÍAS: Ionic 8, Vue 3, Capacitor 7, Supabase, TypeScript
 
 ESTRUCTURA DEL PROYECTO
 -----------------------
 /
-├── backend/                       # PocketBase (ejecutable + datos)
 ├── src/                           # Código fuente Vue/Ionic
 │   ├── backend/                   # Configuración y repositorios
+│   │   ├── config/supabase.ts     # Cliente Supabase
+│   │   ├── repositories/          # Repositorios de datos
+│   │   └── services/              # Servicios (auth)
 │   └── views/                     # Páginas (Login, Movies, Series, Tabs)
+├── supabase/                      # Scripts SQL para Supabase
+│   └── schema.sql                 # Esquema de tablas
 ├── public/                        # Assets PWA (manifest, service-worker)
-└── tests/                         # Tests E2E y unitarios
+└── .env.local                     # Variables de entorno (Supabase)
 
 ================================================================================
                          FUNCIONALIDADES IMPLEMENTADAS
 ================================================================================
 
-✓ MÍNIMOS (7 puntos):
-  - Login con autenticación PocketBase
+✓ MÍNIMOS:
+  - Login con autenticación Supabase
   - CRUD completo de películas (IonList, slide actions, modales)
   - Búsqueda y pull-to-refresh
 
 ✓ OPCIONALES:
-  [+1 punto] CRUD de series con navegación por IonTabs
-  [+1 punto] Notificaciones en tiempo real (suscripción a cambios)
-  [+2 puntos] PWA Deployment (Vercel + Azure VM)
-
-TOTAL ESPERADO: 10 puntos (máximo)
+  - CRUD de series con navegación por IonTabs
+  - Notificaciones en tiempo real (Postgres Realtime de Supabase)
+  - Row Level Security (RLS) para proteger datos
 
 ================================================================================
                           INSTRUCCIONES DE EJECUCIÓN
 ================================================================================
 
-1. Iniciar PocketBase:    cd backend && ./pocketbase serve
-2. Instalar dependencias: npm install
-3. Ejecutar app:          npm run dev
-4. Acceder:               http://localhost:5173
+PASO 1: Configurar Supabase
+---------------------------
+1. Crear proyecto en https://supabase.com
+2. Ir a SQL Editor y ejecutar el contenido de: supabase/schema.sql
+3. Obtener credenciales en: Settings > API
+   - Project URL (VITE_SUPABASE_URL)
+   - anon/public key (VITE_SUPABASE_ANON_KEY)
 
-CREDENCIALES
-------------
-Usuario app:     test@adiflix.com / test12345
-Admin PocketBase: admin@adiflix.com / admin12345
+PASO 2: Configurar variables de entorno
+---------------------------------------
+Editar .env.local con tus credenciales:
+
+VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
+VITE_SUPABASE_ANON_KEY=tu-anon-key
+
+PASO 3: Crear usuario en Supabase
+---------------------------------
+1. Ir a Authentication > Users en el dashboard de Supabase
+2. Crear un nuevo usuario con email y contraseña
+
+PASO 4: Ejecutar la aplicación
+------------------------------
+npm install
+npm run dev
+Acceder: http://localhost:5173
 
 ================================================================================
-                               DESPLIEGUE
+                               CREDENCIALES
 ================================================================================
 
-URLS EN PRODUCCIÓN:
-- Frontend: https://prac4-kv6sskef4-ivan-moises-martinez-zarates-projects.vercel.app
-- Backend:  http://20.251.197.14 (Azure VM)
-- Admin:    http://20.251.197.14/_/
+Dashboard Supabase: https://supabase.com/dashboard/project/gqonowgmcncnxeayrdhb
 
-NOTAS:
-- Realtime deshabilitado en producción (limitación Cloudflare Tunnel)
-- En desarrollo local, el realtime funciona normalmente
+NOTA: Debes crear usuarios manualmente en Supabase > Authentication > Users
+      o usar la función de registro en la app.
 
 ================================================================================

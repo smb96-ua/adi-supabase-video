@@ -238,19 +238,22 @@ function handleRealtimeUpdate(data: any) {
   console.log('Acción:', data.action)
   console.log('Record:', data.record)
   
-  if (data.action === 'create') {
+  // Supabase usa eventos en MAYÚSCULAS: INSERT, UPDATE, DELETE
+  const action = data.action?.toLowerCase()
+  
+  if (action === 'insert' || action === 'create') {
     const exists = movies.value.some(m => m.id === data.record.id)
     if (!exists) {
       movies.value = [data.record, ...movies.value]
     }
     showToast('Nueva película añadida', 'success')
-  } else if (data.action === 'update') {
+  } else if (action === 'update') {
     const index = movies.value.findIndex(m => m.id === data.record.id)
     if (index !== -1) {
       movies.value = [...movies.value.slice(0, index), data.record, ...movies.value.slice(index + 1)]
     }
     showToast('Película actualizada', 'success')
-  } else if (data.action === 'delete') {
+  } else if (action === 'delete') {
     movies.value = movies.value.filter(m => m.id !== data.record.id)
     showToast('Película eliminada', 'warning')
   }
@@ -385,8 +388,8 @@ async function showToast(message: string, color: string) {
   await toast.present()
 }
 
-function handleLogout() {
-  logout()
+async function handleLogout() {
+  await logout()
   router.push('/login')
 }
 </script>
